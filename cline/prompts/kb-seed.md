@@ -18,12 +18,18 @@ debug it, what conventions must I follow, what are the known sharp edges.
   ---
   repo: <repo-name>
   kind: overview | architecture | module | howto | convention | runbook | glossary | faq
+  audience: developer | end-user | all
   paths: [relative/paths/this/doc/describes]
   updated: <YYYY-MM-DD>
   ---
   ```
 - Next to each document write `<name>.md.metadata.json` containing
-  `{"metadataAttributes": {"repo": "<repo-name>", "kind": "<kind>"}}` so results can be filtered.
+  `{"metadataAttributes": {"repo": "<repo-name>", "kind": "<kind>", "audience": "<audience>"}}`
+  so results can be filtered by repo, kind and audience.
+- `audience` gates who can retrieve the document. `developer` for anything that cites code,
+  internals, infrastructure or credentials handling; `end-user` for how-to and FAQ content
+  written for people who use the product; `all` only when the text is safe and useful for both.
+  When in doubt, `developer`.
 - Cite file paths (`src/api/router.ts:42`) instead of pasting large code blocks. Short snippets
   (under 15 lines) are fine when they are the canonical example.
 - Do not include secrets, credentials, account ids, internal hostnames, or personal data. If a
@@ -44,6 +50,8 @@ debug it, what conventions must I follow, what are the known sharp edges.
 7. `60-glossary.md` — domain terms, acronyms, service names, with one-line definitions.
 8. `70-faq.md` — 10 to 30 questions a new engineer asks in week one, each with a direct answer
    and a file path.
+8b. `80-user-guide-<topic>.md` — for products with end users: task-oriented guides written for
+   them, `audience: end-user`, no file paths, no internals.
 9. `90-gaps.md` — things you could not determine from the repo, with the question that a human
    must answer. This is for the platform admin, not for retrieval.
 
