@@ -14,6 +14,10 @@ output "docs_bucket_name" {
   value = aws_s3_bucket.docs.id
 }
 
+output "docs_bucket_arn" {
+  value = aws_s3_bucket.docs.arn
+}
+
 output "collection_endpoint" {
   value = aws_opensearchserverless_collection.kb.collection_endpoint
 }

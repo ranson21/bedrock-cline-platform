@@ -236,6 +236,14 @@ data "aws_iam_policy_document" "admin" {
     resources = [var.logs_kms_key_arn]
   }
   dynamic "statement" {
+    for_each = var.docs_bucket_arn != "" ? [1] : []
+    content {
+      sid       = "SeedKnowledgeBase"
+      actions   = ["s3:PutObject", "s3:DeleteObject", "s3:GetObject", "s3:ListBucket", "s3:GetBucketLocation"]
+      resources = [var.docs_bucket_arn, "${var.docs_bucket_arn}/*"]
+    }
+  }
+  dynamic "statement" {
     for_each = var.budget_table_arn != "" ? [1] : []
     content {
       sid       = "BudgetTable"

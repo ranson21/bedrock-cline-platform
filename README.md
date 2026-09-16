@@ -45,7 +45,9 @@ Bedrock Knowledge Base ◀── S3 docs          CloudWatch Logs ──▶ Budg
    ```
 2. Give each engineer `docs/cline-setup.md`. Their per-engineer inference profile ARN is printed by
    `make profiles ENV=dev`.
-3. Watch spend with `make usage ENV=dev` or the CloudWatch dashboard the `observability` module creates.
+3. The knowledge base starts empty. Follow `docs/knowledge-base-seeding.md` to have Cline itself
+   analyze each codebase and write the documents that get indexed.
+4. Watch spend with `make usage ENV=dev` or the CloudWatch dashboard the `observability` module creates.
 
 ## Governance
 
@@ -158,6 +160,7 @@ See `docs/cost.md` for the full tuning guide.
 ## Documentation
 
 - `docs/architecture.md`, `docs/deploy.md`, `docs/cline-setup.md`, `docs/onboarding.md`
+- `docs/knowledge-base-seeding.md` (fill the empty index using the agent) with the task prompt in `cline/prompts/kb-seed.md`
 - `docs/cost.md` (budget tuning), `docs/budget-guard.md` (how enforcement works)
 - `docs/govcloud-notes.md`, `docs/security-and-compliance.md`
 - `docs/runbooks/` for day-two operations

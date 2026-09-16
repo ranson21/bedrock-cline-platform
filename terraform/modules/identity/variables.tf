@@ -83,3 +83,9 @@ variable "budget_config_parameter_arn" {
   type    = string
   default = ""
 }
+
+variable "docs_bucket_arn" {
+  description = "Knowledge-base docs bucket; admins may upload/delete so they can seed and refresh the index."
+  type        = string
+  default     = ""
+}

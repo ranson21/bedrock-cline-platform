@@ -6,3 +6,4 @@ Templates engineers copy when setting up Cline. Full walkthrough: `docs/cline-se
 - `cline_mcp_settings.json` — MCP registration for the knowledge-base tool.
 - `.clinerules` — drop into any repo root; tuned for token economy on a fixed budget.
 - `aws-config.example` — `~/.aws/config` block for the Identity Center profile.
+- `prompts/kb-seed.md` — paste into Cline to have it document a repository for the knowledge base.

@@ -32,6 +32,8 @@ make sync-docs ENV=dev ARGS="--src ./docs --prefix platform/"   # seed the knowl
 
 Confirm the SNS email subscriptions that arrive after apply, or alerts will not be delivered.
 
+The knowledge base index is empty after apply. Seed it with the agent: `docs/knowledge-base-seeding.md`.
+
 ## Applying to another account
 
 Nothing changes except the `live/<env>/` directory. Copy it, edit `account.hcl`, run the same

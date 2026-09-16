@@ -21,6 +21,7 @@ dependency "knowledge_base" {
   config_path = "../knowledge-base"
   mock_outputs = {
     knowledge_base_arn = "arn:aws:bedrock:us-east-1:000000000000:knowledge-base/mock"
+    docs_bucket_arn    = "arn:aws:s3:::mock"
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan", "init"]
 }
