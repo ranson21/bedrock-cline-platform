@@ -112,12 +112,22 @@ one 5M-token block of Opus 5 per engineer per month, caching on, hosting share i
 | 12 | ~$66 | $200 | ~67% |
 | 25 | ~$42 | $200 | ~79% |
 
-The comparison flips only for very heavy individual use: Max is effectively flat, this
-platform is metered. An engineer would need to bill roughly 40M tokens of Opus 5 cached in a
-month before crossing $200 at 12 headcount, and at that volume Sonnet 5 for routine work keeps
-the same month near $90. The budget guard makes that visible within a day rather than at the
-invoice. For a team whose prior usage averaged about 3M tokens per engineer per month, the
-cost advantage holds with wide headroom, and the boundary advantage holds regardless of price.
+The comparison flips for heavy individual use, because Max is effectively flat and this
+platform is metered. Where a Max seat becomes the cheaper option, per engineer per month:
+
+| Usage pattern | Tokens / month where metered cost passes $200 |
+|---|---|
+| Opus 5, typical cached mix | ~50M |
+| Sonnet 5, typical cached mix | ~125M |
+| Extreme multi-agent, 99% cache reads, Opus 5 | ~300M |
+
+A controlled single-agent Cline workflow typically lands between 10M and 100M tokens a month
+(`docs/cost.md` has the measured reference points), so most engineers stay well under the
+crossover on Sonnet 5 and near it only on Opus 5. Anyone above it is visible in `make usage`
+within a day, and moving them to Sonnet 5 for routine work is the first fix. The boundary
+advantage holds regardless of price: Max sends prompts and code to a commercial SaaS endpoint
+outside your authorization boundary, which for many agencies decides the question before cost
+does.
 
 ### Budget model: the Copilot Enterprise seat, spent on Claude
 

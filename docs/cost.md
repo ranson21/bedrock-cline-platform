@@ -110,6 +110,32 @@ conversation starts from money the organization already spends per engineer.
 A team that previously averaged about 1M tokens per engineer per 10 days (about 3M per month)
 on a metered assistant is under one block per engineer.
 
+## 3b. Reference points: what real usage looks like
+
+Two measured data points bracket the range. Neither is "the average engineer"; the truth for
+a controlled, single-agent Cline workflow sits between them, and the first month of
+`make usage` will tell you where.
+
+| Profile | Tokens / month | Cache-read share | Opus 5 GovCloud | Sonnet 5 GovCloud |
+|---|---|---|---|---|
+| Metered assistant, prior team baseline (about 1M tokens per 10 days) | ~3M | unknown | ~$25 uncached / ~$12 cached | ~$10 / ~$5 |
+| Default budget, one 5M block | 5M | ~80% | ~$20 | ~$8 |
+| Unconstrained power user: multiple concurrent agents, sub-agents, 1M-token contexts, measured over 32 days of Claude Code use | ~20B | 99% | ~$14,000 | ~$5,600 |
+
+The power-user row is what happens when nothing limits context size or agent count. It is
+not a work-environment profile: in a team setting engineers run one agent, review each step,
+and keep tasks scoped, which cuts token volume by orders of magnitude. It is included because
+it shows two things worth designing for: cache reads are effectively the whole bill for
+agentic work, so the cache-read price is the number that matters when choosing a model, and a
+single unbounded engineer can outspend the rest of the team combined, which is why per-engineer
+enforcement exists at all.
+
+Planning guidance until you have a month of data: expect a controlled Cline engineer to land
+between 10M and 100M tokens per month with a cache hit rate above 85%. On Sonnet 5 that is
+$16 to $160; on Opus 5 it is $40 to $400. Set the default budget from the low end, let the
+guard alert at 50 and 80 percent, and raise budgets for the engineers whose projected spend is
+high and whose cache rate is healthy.
+
 ## 4. Tuning to the budget
 
 Levers, in the order they pay off:
