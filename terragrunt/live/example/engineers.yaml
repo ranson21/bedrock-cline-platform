@@ -12,6 +12,8 @@ defaults:
   min_cache_hit_rate: 0.50    # nudge engineers whose cache-read ratio falls below this
   enforce_cache: false        # true = lock profile until caching is re-enabled
   cache_window_requests: 20   # rolling window used for the cache-compliance rule
+  context_alert_tokens: 200000   # a request above this context size counts as oversized
+  context_alert_requests: 50     # nudge the engineer once/month after this many oversized requests
 
 teams:
   platform:

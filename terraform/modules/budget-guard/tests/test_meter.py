@@ -130,3 +130,13 @@ def test_price_key_order_prefers_specific_model():
     assert meter.price_for("anthropic.claude-fable-5-1", prices)["cache_read"] == 0.30
     assert meter.price_for("anthropic.claude-fable-5", prices)["cache_read"] == 1.20
     assert meter.price_for("something-else", prices)["input"] == 1.0
+
+
+def test_context_tokens_and_oversized():
+    u = meter.extract_usage(_record())
+    assert u.context_tokens == 10_000
+    b = meter.budget_for("nobody", CONFIG)
+    assert b["context_alert_tokens"] == 200_000 and b["context_alert_requests"] == 50
+    assert not meter.oversized(u, b)
+    big = meter.extract_usage(_record(input={"inputTokenCount": 1000, "cacheReadInputTokenCount": 250_000}))
+    assert meter.oversized(big, b)

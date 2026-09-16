@@ -39,6 +39,11 @@ class Usage:
         return self.input_tokens + self.output_tokens + self.cache_read_tokens + self.cache_write_tokens
 
     @property
+    def context_tokens(self) -> int:
+        """Size of the context sent on this request: everything except the generated output."""
+        return self.input_tokens + self.cache_read_tokens + self.cache_write_tokens
+
+    @property
     def month(self) -> str:
         return month_key(self.timestamp)
 
@@ -148,6 +153,9 @@ def budget_for(user: str, config: dict, override: dict | None = None) -> dict:
         "min_cache_hit_rate": float(d.get("min_cache_hit_rate", 0.5)),
         "enforce_cache": bool(d.get("enforce_cache", False)),
         "cache_window_requests": int(d.get("cache_window_requests", 20)),
+        # Context-size hygiene: nudge when an engineer repeatedly sends very large contexts.
+        "context_alert_tokens": int(d.get("context_alert_tokens", 200_000)),
+        "context_alert_requests": int(d.get("context_alert_requests", 50)),
     }
     if override:
         for k in ("monthly_usd_budget", "monthly_token_budget", "budget_mode", "enforce", "enforce_cache"):
@@ -190,6 +198,10 @@ def cache_eligible(u: Usage, min_context_tokens: int = 2048) -> bool:
     return (u.input_tokens + u.cache_read_tokens) >= min_context_tokens
 
 
+def oversized(u: Usage, budget: dict) -> bool:
+    return u.context_tokens > budget["context_alert_tokens"]
+
+
 def analytics_document(u: Usage) -> dict:
     return {
         "@timestamp": u.timestamp,
@@ -204,6 +216,7 @@ def analytics_document(u: Usage) -> dict:
         "cache_read_tokens": u.cache_read_tokens,
         "cache_write_tokens": u.cache_write_tokens,
         "total_tokens": u.total_tokens,
+        "context_tokens": u.context_tokens,
         "usd": round(u.usd, 6),
         "region": u.extra.get("region", ""),
     }

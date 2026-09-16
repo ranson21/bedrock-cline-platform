@@ -81,17 +81,20 @@ def get_override(user: str) -> dict | None:
     return {k: (float(v) if isinstance(v, Decimal) else v) for k, v in item.items()}
 
 
-def record_usage(u: meter.Usage, eligible: bool) -> dict:
+def record_usage(u: meter.Usage, eligible: bool, big: bool = False) -> dict:
     """Atomically add this request's usage to the user's monthly item and return the new totals."""
     resp = table().update_item(
         Key={"PK": f"USER#{u.owner}", "SK": f"MONTH#{u.month}"},
         UpdateExpression=(
             "ADD requests :one, input_tokens :i, output_tokens :o, cache_read_tokens :cr, "
             "cache_write_tokens :cw, total_tokens :t, usd_micros :m, "
-            "win_requests :wr, win_input :wi, win_cache :wc "
+            "win_requests :wr, win_input :wi, win_cache :wc, "
+            "context_tokens :ctx, oversized_requests :big "
             "SET team = :team, updated_at = :now"
         ),
         ExpressionAttributeValues={
+            ":ctx": u.context_tokens,
+            ":big": 1 if big else 0,
             ":one": 1,
             ":i": u.input_tokens,
             ":o": u.output_tokens,
@@ -117,6 +120,9 @@ def record_usage(u: meter.Usage, eligible: bool) -> dict:
         "win_input": int(item.get("win_input", 0)),
         "win_cache": int(item.get("win_cache", 0)),
         "cache_hit_rate": float(item.get("cache_hit_rate", 0)),
+        "requests": int(item.get("requests", 0)),
+        "context_tokens": int(item.get("context_tokens", 0)),
+        "oversized_requests": int(item.get("oversized_requests", 0)),
     }
 
 
@@ -218,6 +224,28 @@ def handle_cache(u: meter.Usage, totals: dict, budget: dict, config: dict) -> No
         mark(u, state="cache_disabled")
 
 
+def handle_context(u: meter.Usage, totals: dict, budget: dict, config: dict) -> None:
+    """Nudge once per month when an engineer keeps sending very large contexts.
+
+    Re-sent context is the whole bill for agentic work. Large contexts are usually a task that
+    should have been split, a file that should not have been read whole, or tool output that
+    should have been tailed. This is advisory; it never locks anyone out.
+    """
+    if totals["oversized_requests"] < budget["context_alert_requests"] or "context" in totals.get("alerted", set()):
+        return
+    add_alerted(u, ["context"])
+    email = config.get("engineers", {}).get(u.owner, {}).get("email", "")
+    avg = totals["context_tokens"] // max(totals["requests"], 1)
+    notify(
+        f"[{NAME_PREFIX}] {u.owner}: large contexts are driving spend",
+        f"Engineer: {u.owner} ({email})\n{totals['oversized_requests']} requests this month sent more than "
+        f"{budget['context_alert_tokens']:,} tokens of context (average {avg:,} per request).\n"
+        "Every turn re-sends the whole conversation. Cached or not, smaller contexts cost less and answer faster.\n"
+        "Fixes: start a new task per unit of work, lower Cline's auto-compact threshold, cap terminal output, "
+        "read file ranges instead of whole files. See docs/cost.md, 'Reducing re-sent context'.\n",
+    )
+
+
 def process(records: list[dict], config: dict) -> int:
     processed = 0
     for rec in records:
@@ -228,10 +256,11 @@ def process(records: list[dict], config: dict) -> int:
         if u.owner == "unknown":
             log.warning("unattributed request %s model=%s", u.request_id, u.model_id)
         eligible = meter.cache_eligible(u)
-        totals = record_usage(u, eligible)
         budget = meter.budget_for(u.owner, config, get_override(u.owner))
+        totals = record_usage(u, eligible, big=meter.oversized(u, budget))
         handle_budget(u, totals, budget, config)
         handle_cache(u, totals, budget, config)
+        handle_context(u, totals, budget, config)
         index_analytics(meter.analytics_document(u))
         processed += 1
     return processed

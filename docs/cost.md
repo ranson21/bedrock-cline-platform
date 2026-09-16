@@ -155,6 +155,40 @@ Levers, in the order they pay off:
    `budget-ctl grant` from the team's headroom without touching Terraform.
 7. **Gateway cache injection** if any client cannot be trusted to set cache breakpoints.
 
+## 4b. Reducing re-sent context
+
+Every turn re-sends the conversation, so the bill for agentic work is roughly
+*context size × turns × cache-read price*. Caching fixes the price; these levers shrink the
+other two factors. In rough order of impact:
+
+1. **One task per unit of work.** A new Cline task starts from an empty context. Long tasks
+   accumulate every file read and every command output, and re-send all of it on every turn.
+   The budget guard's `avg ctx` column in `make usage` shows who is carrying large contexts;
+   `context_alert_*` in `engineers.yaml` sends a nudge after repeated oversized requests.
+2. **Lower the auto-compact threshold.** Cline condenses older conversation when the context
+   reaches a percentage of the model's window. With 1M-token models the default lets contexts
+   grow very large before compacting; a threshold around 100k to 200k tokens keeps re-sends
+   small at little cost to quality. Set it in Cline's context-management settings.
+3. **Cap tool output.** Cline's terminal output line limit, workspace file context limit, and
+   open-tabs context limit all bound what enters the conversation. Keep them at or below the
+   defaults; do not raise them for convenience.
+4. **Read ranges, not files.** `cline/.clinerules` already tells the agent to grep first and
+   read line ranges for files over 300 lines. Keep that rule in every repo.
+5. **No images unless the task is visual.** Screenshots from the browser tool are large and
+   are re-sent like everything else. Leave the browser tool disabled by default.
+6. **Keep the system prompt stable.** `.clinerules` and MCP tool definitions are part of every
+   request. They are cached, but every edit to them invalidates the cache for the next turn.
+   Change them deliberately, not mid-task.
+7. **Mind the five-minute cache window.** Bedrock's default cache entry lives five minutes.
+   A turn that arrives later than that re-writes the cache at 1.25x input price. Long pauses
+   inside a task cost more than starting a new task after the pause.
+8. **Model choice for read-heavy sessions.** Cache-read price is the number that matters:
+   Sonnet 5 at $0.24 per 1M versus Opus 5 at $0.60. For sessions that are almost entirely
+   re-sent context, Fable 5.1's $0.30 cache read can undercut Opus 5 despite its higher
+   input and output prices; `make usage --json` gives the token mix to check this against.
+9. **Gateway hard cap.** If advisory nudges are not enough, the optional gateway can reject
+   requests above a maximum input size, which forces compaction at the client.
+
 ## 5. Checking the estimate against reality
 
 Cost Explorer, group by tag `team` and `owner` (activate both as cost allocation tags once they

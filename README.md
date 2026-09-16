@@ -168,8 +168,9 @@ The platform makes that budget real rather than aspirational:
    In gateway mode, cache breakpoints are injected server-side so the client cannot forget.
 3. **Model tiering.** Engineers get a Sonnet 5 profile by default and an Opus 5 profile only
    when listed in `engineers.yaml`. Spend on each is visible separately.
-4. **Client hygiene.** `cline/.clinerules` and `docs/cline-setup.md` set context limits,
-   auto-compaction, and terse-output conventions that cut token volume before it reaches Bedrock.
+4. **Context hygiene.** Re-sent context is the bill. The guard tracks average context size per
+   engineer and nudges after repeated oversized requests; `cline/.clinerules` and the
+   "Reducing re-sent context" section of `docs/cost.md` cover the client-side settings.
 5. **Reporting.** `make usage` shows burn rate, projected month-end spend, cache hit rate, and
    the top consumers, so you can tune budgets against observed behavior instead of guessing.
 

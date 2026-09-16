@@ -78,6 +78,8 @@ def main() -> int:
             "output_tokens": int(i.get("output_tokens", 0)),
             "total_tokens": int(i.get("total_tokens", 0)),
             "cache_hit_rate": (cr / (inp + cr)) if (inp + cr) else 0.0,
+            "avg_context_tokens": int(i.get("context_tokens", 0)) // max(int(i.get("requests", 0)), 1),
+            "oversized_requests": int(i.get("oversized_requests", 0)),
             "usd": usd,
             "usd_budget": usd_budget,
             "pct": 100 * usd / usd_budget if usd_budget else 0,
@@ -90,14 +92,17 @@ def main() -> int:
         print(json.dumps({"month": a.month, "rows": rows}, indent=2))
         return 0
     print(f"Usage for {a.month} (day {day}/{days_in_month})\n")
-    print(f"{'engineer':<26}{'team':<10}{'req':>6}{'tokens':>13}{'cache%':>8}{'out tok':>10}{'usd':>8}{'budget':>8}{'used':>6}{'proj':>8}  state")
+    print(f"{'engineer':<26}{'team':<10}{'req':>6}{'tokens':>13}{'cache%':>8}{'avg ctx':>9}{'big':>5}{'usd':>8}{'budget':>8}{'used':>6}{'proj':>8}  state")
     tot_usd = tot_tok = 0
     for r in rows:
         tot_usd += r["usd"]
         tot_tok += r["total_tokens"]
-        print(f"{r['user']:<26}{r['team'][:9]:<10}{r['requests']:>6}{r['total_tokens']:>13,}{r['cache_hit_rate']:>8.0%}{r['output_tokens']:>10,}"
+        print(f"{r['user']:<26}{r['team'][:9]:<10}{r['requests']:>6}{r['total_tokens']:>13,}{r['cache_hit_rate']:>8.0%}{r['avg_context_tokens']:>9,}{r['oversized_requests']:>5}"
               f"{r['usd']:>8.2f}{r['usd_budget']:>8.0f}{r['pct']:>5.0f}%{r['projected_usd']:>8.2f}  {r['state']}")
-    print(f"\n{'TOTAL':<26}{'':<10}{'':>6}{tot_tok:>13,}{'':>8}{'':>10}{tot_usd:>8.2f}   projected month-end ${tot_usd / day * days_in_month:.2f}")
+    print(f"\n{'TOTAL':<26}{'':<10}{'':>6}{tot_tok:>13,}{'':>8}{'':>9}{'':>5}{tot_usd:>8.2f}   projected month-end ${tot_usd / day * days_in_month:.2f}")
+    heavy = sorted(rows, key=lambda r: -r["avg_context_tokens"])[:3]
+    if heavy and heavy[0]["avg_context_tokens"] > 100_000:
+        print("Largest average contexts (re-sent every turn): " + ", ".join(f"{r['user']} {r['avg_context_tokens']:,}" for r in heavy))
     low = [r for r in rows if r["requests"] >= 20 and r["cache_hit_rate"] < cfg["defaults"].get("min_cache_hit_rate", 0.5)]
     if low:
         print("\nLow cache hit rate (caching probably off in Cline): " + ", ".join(f"{r['user']} {r['cache_hit_rate']:.0%}" for r in low))
