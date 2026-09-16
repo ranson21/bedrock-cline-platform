@@ -7,20 +7,26 @@ actual spend, negotiated discounts (EDP/PPA), and account identifiers** if the r
 The model is deliberately simple:
 
 ```
-monthly cost  =  baseline infrastructure  +  Σ engineers ( token blocks used × price per 5M-token block )
-per-engineer  =  baseline ÷ headcount      +  blocks × block price
+monthly cost  =  fixed baseline (~$550)  +  Σ engineers ( token blocks used × price per 5M-token block )
+per-engineer  =  baseline ÷ headcount    +  that engineer's blocks × block price
 ```
 
-## 1. Baseline infrastructure (fixed, excludes model tokens)
+## 1. Fixed baseline (the platform, before anyone sends a token)
+
+The baseline is a **flat monthly platform cost**. It is the same whether one engineer or fifty
+use the platform, and it is *not* attached to the first engineer. Nearly all of it is the
+OpenSearch Serverless collection behind the knowledge base, which bills for provisioned
+compute units around the clock.
 
 | Component | Sizing | USD / month |
 |---|---|---|
 | OpenSearch Serverless, KB vector collection | 2 OCU, standby DISABLED | ~350 |
-| OpenSearch Serverless, usage analytics collection | shares account OCU pool, plus storage | ~0–200 |
-| Bedrock invocation logging (CloudWatch Logs + S3, CMK) | 25 engineers, heavy use | ~60–120 |
+| OpenSearch Serverless, usage analytics collection (optional, on by default) | shares account OCU pool, plus storage | ~0–200 |
+| Bedrock invocation logging (CloudWatch Logs + S3, CMK) | scales gently with usage | ~40–120 |
 | Budget Guard (Lambda, DynamoDB, SNS, SSM, EventBridge) | pay-per-request | ~5 |
 | KMS keys (3), dashboard, alarms | | ~8 |
-| **Core baseline** | | **~425–685, plan on ~550** |
+| **Core baseline, plan on** | | **~550** (range 425–685) |
+| **Lean baseline** (analytics collection off, CloudWatch dashboard only) | | **~400** |
 | Optional: network (10 interface endpoints, flow logs, no NAT) | | +~90 |
 | Optional: Client VPN (endpoint + 2 subnet associations, before connection-hours) | | +~150 |
 | Optional: gateway (2× Fargate 1 vCPU / 2 GB, internal ALB) | | +~100 |
@@ -28,9 +34,10 @@ per-engineer  =  baseline ÷ headcount      +  blocks × block price
 | **Everything on** | | **~800–1050** |
 
 GovCloud runs roughly 15–25% above commercial list; the ranges lean high already. Enabling
-`standby_replicas = ENABLED` doubles that collection's OCU line.
-
-Baseline per engineer at 25 engineers: **~$22/month core**, ~$36 with every option on.
+`standby_replicas = ENABLED` doubles that collection's OCU line. The analytics collection is
+the one baseline item you can remove without losing any enforcement: set
+`enable_analytics_collection = false` in the observability unit and the budget guard still
+meters and enforces from DynamoDB.
 
 ## 2. Price per 5M-token block
 
@@ -57,21 +64,40 @@ What one **5M-token block** costs depends on how much of it is cached. Two refer
 Cache writes are priced above input, so a block with heavy cache churn (many new tasks, short
 conversations) lands between the two columns. `make usage` reports each engineer's real hit rate.
 
-## 3. Per-engineer cost after the baseline
+## 3. Per-engineer cost, including the hosting share
 
-Add the baseline share to the blocks consumed. At 25 engineers on the core baseline ($22 each):
+Per-engineer all-in cost is the baseline divided by headcount, plus that engineer's blocks.
+Smaller teams pay **less in total but more per head**, because the same fixed baseline is
+spread over fewer people.
 
-| Engineer profile | Blocks / month | Model, mix | Tokens | Cost |
-|---|---|---|---|---|
-| Light | 1 | Sonnet 5, cached | 5M | 22 + 8 = **~$30** |
-| Typical (the default budget) | 1 | Opus 5, uncached | 5M | 22 + 42 = **~$64** |
-| Typical, caching on | 1 | Opus 5, cached | 5M | 22 + 20 = **~$42** |
-| Heavy agentic | 4 | Sonnet 5, cached | 20M | 22 + 32 = **~$54** |
-| Heavy agentic | 4 | Opus 5, cached | 20M | 22 + 80 = **~$102** |
-| Very heavy | 10 | Opus 5, cached | 50M | 22 + 200 = **~$222** |
+### Baseline share per engineer
 
-Team of 25, everyone at the "typical, caching on" row: 550 + 25 × 20 = **~$1,050/month**.
-Team of 25 at "heavy agentic, Sonnet cached": 550 + 25 × 32 = **~$1,350/month**.
+| Headcount | Core baseline (~$550) | Lean baseline (~$400) |
+|---|---|---|
+| 8 | ~$69 | ~$50 |
+| 12 | ~$46 | ~$33 |
+| 25 | ~$22 | ~$16 |
+| 50 | ~$11 | ~$8 |
+
+### All-in per engineer, one 5M-token block per month, core baseline
+
+| Headcount | Sonnet 5 cached (~$8) | Opus 5 cached (~$20) | Opus 5 uncached (~$42) |
+|---|---|---|---|
+| 8 | ~$77 | ~$89 | ~$111 |
+| 12 | ~$54 | ~$66 | ~$88 |
+| 25 | ~$30 | ~$42 | ~$64 |
+
+### Team totals, everyone on one Opus 5 cached block
+
+| Headcount | Core baseline | Tokens | Total / month |
+|---|---|---|---|
+| 8 | 550 | 160 | **~$710** |
+| 12 | 550 | 240 | **~$790** |
+| 25 | 550 | 500 | **~$1,050** |
+
+Heavier users simply add blocks: an engineer running 4 blocks of Sonnet 5 cached (20M tokens)
+adds ~$32 on top of their baseline share; 4 blocks of Opus 5 cached adds ~$80. The budget
+guard caps each engineer at `monthly_usd_budget` (default $48) regardless of headcount.
 
 A team that previously averaged about 1M tokens per engineer per 10 days (about 3M per month)
 on a metered assistant is under one block per engineer.
