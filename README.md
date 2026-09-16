@@ -96,6 +96,27 @@ The practical difference for a 25-engineer team: an engineer can leave a multi-h
 running against a 400k-token context without hitting a request quota, and the bill for it is
 visible the same day, attributed to them, and capped by policy.
 
+### How it compares to Claude Max
+
+Claude Max is the other obvious way to give an engineer Claude Code with Opus-class models.
+It is a flat $200 per seat per month, and it is a consumer subscription to Anthropic's
+commercial service, so prompts and code leave your authorization boundary. Cost comparison at
+one 5M-token block of Opus 5 per engineer per month, caching on, hosting share included
+(see `docs/cost.md`):
+
+| Headcount | This platform, all-in per engineer | Claude Max per seat | Savings |
+|---|---|---|---|
+| 8 | ~$89 | $200 | ~55% |
+| 12 | ~$66 | $200 | ~67% |
+| 25 | ~$42 | $200 | ~79% |
+
+The comparison flips only for very heavy individual use: Max is effectively flat, this
+platform is metered. An engineer would need to bill roughly 40M tokens of Opus 5 cached in a
+month before crossing $200 at 12 headcount, and at that volume Sonnet 5 for routine work keeps
+the same month near $90. The budget guard makes that visible within a day rather than at the
+invoice. For a team whose prior usage averaged about 3M tokens per engineer per month, the
+cost advantage holds with wide headroom, and the boundary advantage holds regardless of price.
+
 ### Budget model: making 5.7M tokens per engineer per month work
 
 Cost is a fixed baseline plus per-engineer token blocks:
