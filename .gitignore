@@ -1,0 +1,42 @@
+# Terraform / Terragrunt
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.example.tfvars
+.terragrunt-cache/
+backend.tf
+provider.tf
+terragrunt-debug.tfvars.json
+
+# Generated Lambda bundles
+*.zip
+build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+dist/
+
+# Local account config (copy from example, never commit real account ids)
+terragrunt/live/*/
+!terragrunt/live/example/
+!terragrunt/live/README.md
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Secrets
+*.pem
+*.key
+.env
+
+# bootstrap working dir (local state)
+.bootstrap/

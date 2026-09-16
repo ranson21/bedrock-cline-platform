@@ -1,0 +1,12 @@
+# Append to ~/.aws/config. Values come from your admin (make profiles / onboarding email).
+[sso-session agency]
+sso_start_url = https://<your-identity-center-portal>/start
+sso_region = us-gov-west-1
+sso_registration_scopes = sso:account:access
+
+[profile bedrock]
+sso_session = agency
+sso_account_id = <account-id>
+sso_role_name = bcp-BedrockEngineer
+region = us-gov-west-1
+output = json

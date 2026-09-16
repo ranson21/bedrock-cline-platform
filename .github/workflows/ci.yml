@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.3"
+      - name: fmt
+        run: terraform fmt -check -recursive terraform
+      - name: validate every module
+        run: |
+          set -e
+          for m in terraform/modules/*; do
+            echo "== $m"
+            (cd "$m" && terraform init -backend=false -input=false >/dev/null && terraform validate)
+          done
+      - uses: terraform-linters/setup-tflint@v4
+      - name: tflint
+        run: |
+          tflint --init --config "$PWD/.tflint.hcl"
+          for m in terraform/modules/*; do (cd "$m" && tflint --config "$GITHUB_WORKSPACE/.tflint.hcl"); done
+      - name: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          config_file: .checkov.yaml
+          quiet: true
+          soft_fail: true
+
+  terragrunt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install terragrunt
+        run: |
+          curl -sSL -o /usr/local/bin/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.67.16/terragrunt_linux_amd64
+          chmod +x /usr/local/bin/terragrunt
+      - name: hclfmt check
+        run: terragrunt hclfmt --terragrunt-check --terragrunt-working-dir terragrunt
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r tools/requirements.txt
+      - run: ruff check tools terraform/modules/*/lambda
+      - run: python -m pytest -q terraform/modules/budget-guard/tests tools

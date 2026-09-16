@@ -1,0 +1,15 @@
+framework:
+  - terraform
+skip-check:
+  # Lambda VPC placement is intentionally optional; enable the network module for it.
+  - CKV_AWS_117
+  # Lambda code signing is out of scope for this reference implementation.
+  - CKV_AWS_272
+  # X-Ray tracing on Lambdas is optional.
+  - CKV_AWS_50
+  # Cross-region replication of log buckets is left to the adopting agency.
+  - CKV_AWS_144
+  # S3 event notifications are configured via EventBridge, not bucket notifications.
+  - CKV2_AWS_62
+quiet: true
+compact: true

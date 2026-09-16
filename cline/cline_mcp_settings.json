@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "team-knowledge-base": {
+      "command": "mcp-kb-server",
+      "args": [],
+      "env": {
+        "KB_ID": "<knowledge-base-id>",
+        "AWS_PROFILE": "bedrock",
+        "AWS_REGION": "us-gov-west-1",
+        "KB_TOP_K": "6"
+      },
+      "disabled": false,
+      "autoApprove": ["search_knowledge_base", "knowledge_base_info"]
+    }
+  }
+}

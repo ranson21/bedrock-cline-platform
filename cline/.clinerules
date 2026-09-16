@@ -1,0 +1,23 @@
+# Token-economy rules for a fixed per-engineer budget. Copy to the root of any repo.
+
+## Working style
+- Read only the files you need. Use search (grep/glob) before opening large files, and read
+  ranges instead of whole files when a file is over 300 lines.
+- Do not re-read a file you already have in context unless it changed.
+- Keep replies short: what you changed, why, and what to verify. No restating the request.
+- Prefer targeted edits (search/replace) over rewriting whole files.
+- Batch independent tool calls in one turn.
+
+## Context hygiene
+- When a task spans many files, summarize what you have learned so far in one paragraph
+  before moving on, so context can be compacted without losing state.
+- Do not paste large command output back into the conversation; tail or grep it.
+- Do not run the browser tool unless the task is UI verification.
+
+## Knowledge base
+- Before asking the user about team conventions, service names, or deploy steps, call
+  `search_knowledge_base` and cite the source URI.
+
+## Safety
+- Never print secrets, tokens, account ids, or credentials into the conversation.
+- Ask before running destructive git or infrastructure commands.
