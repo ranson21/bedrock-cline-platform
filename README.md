@@ -25,24 +25,24 @@ Bedrock Knowledge Base ◀── S3 docs          CloudWatch Logs ──▶ Budg
 
 | Path | What it is |
 |---|---|
-| `terragrunt/` | Root config plus one directory per account. Copy `live/example` to `live/<your-env>` and edit `account.hcl` and `engineers.yaml`. |
-| `terraform/modules/` | Plain Terraform modules: `bootstrap`, `identity`, `bedrock-core`, `budget-guard`, `knowledge-base`, `observability`, `network` (optional), `gateway` (optional). |
-| `tools/` | `preflight` checks, `smoke` tests, `usage-report`, `budget-ctl`, `sync-docs`, and the `mcp-kb-server` that gives Cline retrieval over your docs. |
-| `cline/` | Settings templates, MCP registration, and a `.clinerules` file tuned for token economy. |
-| `docs/` | Architecture, deploy, Cline setup, onboarding, budget tuning, GovCloud notes, security, runbooks. |
+| [`terragrunt/`](terragrunt/) | Root config plus one directory per account. Copy `live/example` to `live/<your-env>` and edit `account.hcl` and `engineers.yaml`. |
+| [`terraform/modules/`](terraform/modules/) | Plain Terraform modules: `bootstrap`, `identity`, `bedrock-core`, `budget-guard`, `knowledge-base`, `observability`, `network` (optional), `gateway` (optional). |
+| [`tools/`](tools/) | `preflight` checks, `smoke` tests, `usage-report`, `budget-ctl`, `sync-docs`, and the `mcp-kb-server` that gives Cline retrieval over your docs. |
+| [`cline/`](cline/) | Settings templates, MCP registration, and a `.clinerules` file tuned for token economy. |
+| [`docs/`](docs/) | Architecture, deploy, Cline setup, onboarding, budget tuning, GovCloud notes, security, runbooks. |
 
 ## Quick start
 
-1. **Deploy the platform**: `docs/deploy.md`. Create an environment directory from the example,
+1. **Deploy the platform**: [docs/deploy.md](docs/deploy.md). Create an environment directory from the example,
    fill in the account and engineer config, and run the `make` targets in order. Budget about
-   an hour for a first deployment, then work through `docs/first-apply-shakedown.md` before
+   an hour for a first deployment, then work through [docs/first-apply-shakedown.md](docs/first-apply-shakedown.md) before
    onboarding anyone.
-2. **Set up engineers**: give each one `docs/cline-setup.md` and their inference profile ARNs
-   from `make profiles`. Admin steps for adding and removing people are in `docs/onboarding.md`.
-3. **Fill the knowledge base**: it starts empty. `docs/knowledge-base-seeding.md` has Cline do
+2. **Set up engineers**: give each one [docs/cline-setup.md](docs/cline-setup.md) and their inference profile ARNs
+   from `make profiles`. Admin steps for adding and removing people are in [docs/onboarding.md](docs/onboarding.md).
+3. **Fill the knowledge base**: it starts empty. [docs/knowledge-base-seeding.md](docs/knowledge-base-seeding.md) has Cline do
    the work of documenting each codebase.
 4. **Watch spend**: `make usage` or the CloudWatch dashboard. Budget defaults and the levers for
-   tuning them are in `docs/cost.md`.
+   tuning them are in [docs/cost.md](docs/cost.md).
 
 ## Governance
 
@@ -173,12 +173,12 @@ See `docs/cost.md` for the full tuning guide.
 
 ## Documentation
 
-- `docs/architecture.md`, `docs/deploy.md`, `docs/first-apply-shakedown.md`, `docs/cline-setup.md`, `docs/onboarding.md`
-- `docs/knowledge-base-seeding.md` (fill the empty index using the agent) with the task prompt in `cline/prompts/kb-seed.md`
-- `docs/knowledge-base-ui.md` (prompt to build a role-gated KB search/Q&A feature into your existing app)
-- `docs/mcp-integration.md` (local and remote MCP servers: credentials, hosting in-boundary, governance)
-- `docs/cost.md` (budget tuning), `docs/budget-guard.md` (how enforcement works)
-- `docs/govcloud-notes.md`, `docs/security-and-compliance.md`
+- [docs/architecture.md](docs/architecture.md), [docs/deploy.md](docs/deploy.md), [docs/first-apply-shakedown.md](docs/first-apply-shakedown.md), [docs/cline-setup.md](docs/cline-setup.md), [docs/onboarding.md](docs/onboarding.md)
+- [docs/knowledge-base-seeding.md](docs/knowledge-base-seeding.md) (fill the empty index using the agent) with the task prompt in [cline/prompts/kb-seed.md](cline/prompts/kb-seed.md)
+- [docs/knowledge-base-ui.md](docs/knowledge-base-ui.md) (prompt to build a role-gated KB search/Q&A feature into your existing app)
+- [docs/mcp-integration.md](docs/mcp-integration.md) (local and remote MCP servers: credentials, hosting in-boundary, governance)
+- [docs/cost.md](docs/cost.md) (budget tuning), [docs/budget-guard.md](docs/budget-guard.md) (how enforcement works)
+- [docs/govcloud-notes.md](docs/govcloud-notes.md), [docs/security-and-compliance.md](docs/security-and-compliance.md)
 - `docs/runbooks/` for day-two operations, including `enable-identity-center.md` for the one prerequisite Terraform cannot create
 
 ## License
