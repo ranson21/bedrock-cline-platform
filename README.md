@@ -33,23 +33,16 @@ Bedrock Knowledge Base ◀── S3 docs          CloudWatch Logs ──▶ Budg
 
 ## Quick start
 
-1. Read `docs/deploy.md`. The short version: copy the example environment to a directory
-   named after your environment (that name is the `ENV` for every `make` target), edit its two
-   config files, then run the targets in order.
-   ```bash
-   cp -r terragrunt/live/example terragrunt/live/dev
-   $EDITOR terragrunt/live/dev/account.hcl      # account id, partition, region
-   $EDITOR terragrunt/live/dev/engineers.yaml   # who gets access, which models, budgets
-   make preflight ENV=dev    # verifies auth, partition, model enablement, Identity Center
-   make bootstrap ENV=dev    # state bucket + lock table, once per account
-   make apply ENV=dev        # terragrunt run-all apply in dependency order
-   make smoke ENV=dev        # invokes each profile, proves caching works, tests KB retrieve
-   ```
-2. Give each engineer `docs/cline-setup.md`. Their per-engineer inference profile ARN is printed by
-   `make profiles ENV=dev`.
-3. The knowledge base starts empty. Follow `docs/knowledge-base-seeding.md` to have Cline itself
-   analyze each codebase and write the documents that get indexed.
-4. Watch spend with `make usage ENV=dev` or the CloudWatch dashboard the `observability` module creates.
+1. **Deploy the platform**: `docs/deploy.md`. Create an environment directory from the example,
+   fill in the account and engineer config, and run the `make` targets in order. Budget about
+   an hour for a first deployment, then work through `docs/first-apply-shakedown.md` before
+   onboarding anyone.
+2. **Set up engineers**: give each one `docs/cline-setup.md` and their inference profile ARNs
+   from `make profiles`. Admin steps for adding and removing people are in `docs/onboarding.md`.
+3. **Fill the knowledge base**: it starts empty. `docs/knowledge-base-seeding.md` has Cline do
+   the work of documenting each codebase.
+4. **Watch spend**: `make usage` or the CloudWatch dashboard. Budget defaults and the levers for
+   tuning them are in `docs/cost.md`.
 
 ## Governance
 
