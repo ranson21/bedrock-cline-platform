@@ -87,7 +87,7 @@ boundary is your AWS account. Points that matter to an assessor:
 |---|---|---|
 | Where inference runs | GitHub and Microsoft operated infrastructure, outside your AWS boundary. Check the FedRAMP Marketplace for its current authorization before relying on it. | Your AWS account, in GovCloud if you choose. |
 | Model choice | Fixed menu, with per-model request multipliers. | Any Claude model enabled in your account, including Opus 5 and 1M-context models. Per engineer, per team. |
-| Metering | Premium request quotas per seat, then per-request overage. Long agentic runs burn quota fast. | Pay per token, with caching. A per-engineer dollar and token budget you set, enforced by the platform. |
+| Metering | $39 seat with a $39 monthly AI-credit pool, metered at API token rates since June 2026; long agentic runs drain the pool and overage bills on top. | The same $39 per engineer, spent directly on tokens at Bedrock list price with caching. Enforced by the platform, no seat fee. |
 | Context window | Managed by the vendor. | Up to 1M tokens on current Claude models. |
 | Tooling | Vendor-defined tools. | Cline supports MCP. This repo ships a knowledge-base tool; add your own. |
 | Autonomy | Vendor-controlled auto-approve rules. | Full control of auto-approve, checkpoints, and rules per repo via `.clinerules`. |
@@ -119,7 +119,15 @@ the same month near $90. The budget guard makes that visible within a day rather
 invoice. For a team whose prior usage averaged about 3M tokens per engineer per month, the
 cost advantage holds with wide headroom, and the boundary advantage holds regardless of price.
 
-### Budget model: making 5.7M tokens per engineer per month work
+### Budget model: the Copilot Enterprise seat, spent on Claude
+
+The default per-engineer budget is **$39 per month**, the list price of a GitHub Copilot
+Enterprise seat and the size of the monthly AI-credit pool that seat now carries, since Copilot
+moved to usage-based billing in June 2026. The framing for finance is simple: each engineer
+gets exactly the money a Copilot seat would have cost, spent on Claude inside your boundary
+with no per-seat platform fee on top. (Copilot Enterprise also requires GitHub Enterprise Cloud
+at $21 per user, so the like-for-like number is closer to $60; the default stays at $39 to be
+conservative. Change it in one line of `engineers.yaml`.)
 
 Cost is a fixed baseline plus per-engineer token blocks:
 
@@ -132,10 +140,10 @@ monthly cost = baseline infra (~$550 core) + Σ engineers (5M-token blocks × bl
 | Claude Opus 5 | ~$42 | ~$20 |
 | Claude Sonnet 5 | ~$17 | ~$8 |
 
-So the default budget of **$48 per engineer per month** is about one 5M block of Opus 5 uncached,
-or roughly 2.4 blocks (12M tokens) with caching on, or 6 blocks (30M tokens) on Sonnet 5 cached.
-Cached prefix tokens bill at about one tenth of the input rate, which is why caching is enforced
-rather than suggested. Full tables, per-engineer examples, and the levers are in `docs/cost.md`.
+So $39 buys roughly 4.6M tokens of Opus 5 uncached, about 10M tokens of Opus 5 with caching
+on, or about 24M tokens of Sonnet 5 cached. Cached prefix tokens bill at one tenth of the input
+rate, which is why caching is enforced rather than suggested. Full tables, per-engineer examples,
+and the tuning levers are in `docs/cost.md`.
 
 The platform makes that budget real rather than aspirational:
 

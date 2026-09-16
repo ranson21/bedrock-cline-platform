@@ -4,8 +4,8 @@
 
 defaults:
   models: [sonnet]            # tiers every engineer gets unless overridden
-  monthly_usd_budget: 48      # ~5.7M Opus-5 tokens uncached; 3x-4x more with caching
-  monthly_token_budget: 5700000
+  monthly_usd_budget: 39      # = a GitHub Copilot Enterprise seat; ~10M Opus-5 tokens cached, ~24M Sonnet-5 cached
+  monthly_token_budget: 10000000  # used only when budget_mode is tokens or either
   budget_mode: usd            # usd | tokens | either  (what "100%" means)
   enforce: true               # tag profiles exhausted at 100%; false = alerts only
   alert_thresholds: [50, 80, 100]

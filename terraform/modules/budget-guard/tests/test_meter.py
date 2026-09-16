@@ -7,8 +7,8 @@ import meter
 PROFILE_ARN = "arn:aws-us-gov:bedrock:us-gov-west-1:000000000000:application-inference-profile/abc123"
 CONFIG = {
     "defaults": {
-        "monthly_usd_budget": 48,
-        "monthly_token_budget": 5_700_000,
+        "monthly_usd_budget": 39,
+        "monthly_token_budget": 10_000_000,
         "budget_mode": "usd",
         "enforce": True,
         "alert_thresholds": [50, 80, 100],
@@ -81,12 +81,12 @@ def test_budget_override_precedence():
     assert b2["monthly_usd_budget"] == 200
     assert b2["enforce"] is False
     b3 = meter.budget_for("nobody", CONFIG)
-    assert b3["monthly_usd_budget"] == 48
+    assert b3["monthly_usd_budget"] == 39
 
 
 def test_evaluate_thresholds_and_exhaustion():
     b = meter.budget_for("jane.doe", CONFIG)
-    r = meter.evaluate({"usd": 50.0, "total_tokens": 100, "alerted": set()}, b)
+    r = meter.evaluate({"usd": 48.5, "total_tokens": 100, "alerted": set()}, b)
     assert r["new_alerts"] == [50]
     assert not r["exhausted"]
     r = meter.evaluate({"usd": 96.5, "total_tokens": 100, "alerted": {"50", "80"}}, b)
@@ -100,7 +100,7 @@ def test_evaluate_thresholds_and_exhaustion():
 def test_evaluate_token_and_either_modes():
     b = meter.budget_for("nobody", CONFIG)
     b["budget_mode"] = "tokens"
-    r = meter.evaluate({"usd": 0.0, "total_tokens": 5_700_000, "alerted": set()}, b)
+    r = meter.evaluate({"usd": 0.0, "total_tokens": 10_000_000, "alerted": set()}, b)
     assert r["pct"] == 100.0
     b["budget_mode"] = "either"
     r = meter.evaluate({"usd": 40.0, "total_tokens": 1_000, "alerted": set()}, b)

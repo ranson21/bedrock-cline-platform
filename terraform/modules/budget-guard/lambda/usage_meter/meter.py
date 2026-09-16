@@ -140,8 +140,8 @@ def budget_for(user: str, config: dict, override: dict | None = None) -> dict:
     d = dict(config.get("defaults", {}))
     e = config.get("engineers", {}).get(user, {}) or {}
     b = {
-        "monthly_usd_budget": float(e.get("monthly_usd_budget") or d.get("monthly_usd_budget", 48)),
-        "monthly_token_budget": int(e.get("monthly_token_budget") or d.get("monthly_token_budget", 5_700_000)),
+        "monthly_usd_budget": float(e.get("monthly_usd_budget") or d.get("monthly_usd_budget", 39)),
+        "monthly_token_budget": int(e.get("monthly_token_budget") or d.get("monthly_token_budget", 10_000_000)),
         "budget_mode": e.get("budget_mode") or d.get("budget_mode", "usd"),
         "enforce": bool(d.get("enforce", True)) if e.get("enforce") is None else bool(e.get("enforce")),
         "alert_thresholds": list(d.get("alert_thresholds", [50, 80, 100])),

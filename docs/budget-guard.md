@@ -15,7 +15,7 @@ Bedrock invocation log record → CloudWatch Logs subscription → `usage_meter`
 3. **Price**: `input`, `output`, `cacheRead`, `cacheWrite` token counts × the price table in
    `engineers.yaml`. Stored as integer micro-dollars so DynamoDB `ADD` stays exact.
 4. **Accumulate** into `USER#<user> / MONTH#<yyyy-mm>`; returns the new totals atomically.
-5. **Evaluate** against the effective budget: `defaults` ← engineer entry ← runtime override
+5. **Evaluate** against the effective budget (default $39, a Copilot Enterprise seat): `defaults` ← engineer entry ← runtime override
    (`budget-ctl grant`). `budget_mode` decides whether percent-used is dollars, tokens or the
    larger of the two.
 6. **Alert** once per threshold (50/80/100 by default) on the SNS topic.

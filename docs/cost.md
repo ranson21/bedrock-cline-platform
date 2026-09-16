@@ -61,11 +61,11 @@ What one **5M-token block** costs depends on how much of it is cached. Two refer
 - **Uncached**: 90% input, 10% output. What you pay if "Use prompt caching" is off.
 - **Cached**: 10% fresh input, 80% cache read, 10% output. Typical for Cline with caching on.
 
-| Model | 5M block, uncached | 5M block, cached | Blocks per $48 (uncached / cached) |
+| Model | 5M block, uncached | 5M block, cached | Blocks per $39 (uncached / cached) |
 |---|---|---|---|
-| Claude Opus 5 | **~$42** | **~$20** | 1.1 / 2.4 |
-| Claude Sonnet 5 | **~$17** | **~$8** | 2.8 / 6.0 |
-| Claude Haiku 4.5 | **~$8.50** | **~$4** | 5.6 / 12 |
+| Claude Opus 5 | **~$42** | **~$20** | 0.9 / 2.0 |
+| Claude Sonnet 5 | **~$17** | **~$8** | 2.3 / 4.9 |
+| Claude Haiku 4.5 | **~$8.50** | **~$4** | 4.6 / 9.8 |
 
 Cache writes are priced above input, so a block with heavy cache churn (many new tasks, short
 conversations) lands between the two columns. `make usage` reports each engineer's real hit rate.
@@ -103,7 +103,9 @@ spread over fewer people.
 
 Heavier users simply add blocks: an engineer running 4 blocks of Sonnet 5 cached (20M tokens)
 adds ~$32 on top of their baseline share; 4 blocks of Opus 5 cached adds ~$80. The budget
-guard caps each engineer at `monthly_usd_budget` (default $48) regardless of headcount.
+guard caps each engineer at `monthly_usd_budget` regardless of headcount. The default is **$39**, the
+list price of a GitHub Copilot Enterprise seat and its monthly AI-credit pool, so the budget
+conversation starts from money the organization already spends per engineer.
 
 A team that previously averaged about 1M tokens per engineer per 10 days (about 3M per month)
 on a metered assistant is under one block per engineer.
@@ -120,7 +122,7 @@ Levers, in the order they pay off:
    default. Fewer tokens per turn and fewer cache writes.
 4. **Budget mode.** `usd` (default) rewards caching; `tokens` is simpler to explain but penalizes
    cached traffic; `either` is the conservative cap.
-5. **Thresholds and enforcement.** Start with `enforce: true` at $48 and read the first month's
+5. **Thresholds and enforcement.** Start with `enforce: true` at the $39 default and read the first month's
    `make usage`. Raise budgets for engineers whose projected spend is consistently over and whose
    cache rate is healthy; they are doing the most work.
 6. **Team pooling.** Team-level AWS Budgets alert on the tag total, so an admin can
