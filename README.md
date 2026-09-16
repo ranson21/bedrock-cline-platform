@@ -127,7 +127,7 @@ Cost is a fixed baseline plus per-engineer token blocks:
 monthly cost = baseline infra (~$550 core) + Σ engineers (5M-token blocks × block price)
 ```
 
-| Model, GovCloud estimate | 5M block, caching off | 5M block, caching on |
+| Model, GovCloud list price | 5M block, caching off | 5M block, caching on |
 |---|---|---|
 | Claude Opus 5 | ~$42 | ~$20 |
 | Claude Sonnet 5 | ~$17 | ~$8 |

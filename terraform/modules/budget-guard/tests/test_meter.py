@@ -119,3 +119,14 @@ def test_analytics_document_shape():
     u = meter.enrich(meter.extract_usage(_record()), CONFIG)
     d = meter.analytics_document(u)
     assert d["user"] == "jane.doe" and d["total_tokens"] == 10_500 and d["usd"] > 0
+
+
+def test_price_key_order_prefers_specific_model():
+    prices = {
+        "claude-fable-5-1": {"input": 12.0, "output": 60.0, "cache_write": 15.0, "cache_read": 0.30},
+        "claude-fable-5": {"input": 12.0, "output": 60.0, "cache_write": 15.0, "cache_read": 1.20},
+        "default": {"input": 1.0, "output": 1.0, "cache_write": 1.0, "cache_read": 1.0},
+    }
+    assert meter.price_for("anthropic.claude-fable-5-1", prices)["cache_read"] == 0.30
+    assert meter.price_for("anthropic.claude-fable-5", prices)["cache_read"] == 1.20
+    assert meter.price_for("something-else", prices)["input"] == 1.0

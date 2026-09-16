@@ -1,7 +1,7 @@
 # Cost model and budget tuning
 
-Last reviewed 2026-09. All figures are public AWS list prices or estimates derived from them,
-rounded. They are not a quote. **When you localize this file, keep it free of your account's
+Last reviewed 2026-09-16. Token prices are AWS list prices for GovCloud (US-West); infrastructure
+figures are estimates derived from list prices, rounded. They are not a quote. **When you localize this file, keep it free of your account's
 actual spend, negotiated discounts (EDP/PPA), and account identifiers** if the repo stays public.
 
 The model is deliberately simple:
@@ -41,14 +41,20 @@ meters and enforces from DynamoDB.
 
 ## 2. Price per 5M-token block
 
-Bedrock list prices per 1M tokens, GovCloud estimated at +20% over global. Confirm at
-https://aws.amazon.com/bedrock/pricing/ and keep `prices:` in `engineers.yaml` in sync.
+Bedrock list prices per 1M tokens for **AWS GovCloud (US-West)**, read from the Anthropic
+"Geo and In-region" table at https://aws.amazon.com/bedrock/pricing/ on 2026-09-16. GovCloud is
+exactly 1.2x the global rate (the commercial "us." geo profiles are 1.1x). Keep `prices:` in
+`engineers.yaml` in sync when AWS changes them.
 
-| Model | Input | Cache write | Cache read | Output |
-|---|---|---|---|---|
-| Claude Opus 5 | ~6.00 | ~7.50 | ~0.60 | ~30.00 |
-| Claude Sonnet 5 | ~2.40 | ~3.00 | ~0.24 | ~12.00 |
-| Claude Haiku 4.5 | ~1.20 | ~1.50 | ~0.12 | ~6.00 |
+| Model | Input | Cache write (5m) | Cache read | Output | Batch in / out |
+|---|---|---|---|---|---|
+| Claude Opus 5 | 6.00 | 7.50 | 0.60 | 30.00 | 3.00 / 15.00 |
+| Claude Sonnet 5 | 2.40 | 3.00 | 0.24 | 12.00 | n/a |
+| Claude Opus 4.8 | 6.00 | 7.50 | 0.60 | 30.00 | n/a |
+| Claude Fable 5.1 | 12.00 | 15.00 | 0.30 | 60.00 | n/a |
+| Claude Haiku 4.5 | not listed for GovCloud at review; 1.20 / 1.50 / 0.12 / 6.00 if it follows the 1.2x pattern | | | | |
+
+Claude Fable 5 and Sonnet 4.6 show N/A for GovCloud (US-West) on the pricing page at review time.
 
 What one **5M-token block** costs depends on how much of it is cached. Two reference mixes:
 

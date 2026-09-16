@@ -39,15 +39,21 @@ model_tiers:
   fable:  { model_id: anthropic.claude-fable-5-1,              cross_region: true }
   haiku:  { model_id: anthropic.claude-haiku-4-5-20251001-v1:0, cross_region: false }
 
-# USD per 1M tokens. Keys are matched as substrings of the base model id.
-# These are GovCloud estimates (global list price + ~20%). Update from
-# https://aws.amazon.com/bedrock/pricing/ — the budget guard reads this table.
+# USD per 1M tokens. Keys are matched as substrings of the base model id, in order,
+# so put the more specific key (claude-fable-5-1) before the shorter one (claude-fable-5).
+# Values below are AWS list prices for AWS GovCloud (US-West), read from
+# https://aws.amazon.com/bedrock/pricing/ (Anthropic > Geo and In-region) on 2026-09-16.
+# They are exactly 1.2x the global rate. cache_write is the 5-minute cache write price
+# (1-hour cache writes are 2x input). Commercial regions: divide by 1.2 for "us." geo
+# profiles, or use the global price (Opus 5 $5/$25, Sonnet 5 $2/$10) for "global." ones.
+# The budget guard reads this table; re-check it when AWS changes pricing.
 prices:
+  claude-fable-5-1: { input: 12.00, output: 60.00, cache_write: 15.00, cache_read: 0.30 }
   claude-opus-5:    { input: 6.00,  output: 30.00, cache_write: 7.50,  cache_read: 0.60 }
-  claude-sonnet-5:  { input: 2.40,  output: 12.00, cache_write: 3.00,  cache_read: 0.24 }
   claude-opus-4-8:  { input: 6.00,  output: 30.00, cache_write: 7.50,  cache_read: 0.60 }
-  claude-fable-5:   { input: 12.00, output: 60.00, cache_write: 15.00, cache_read: 1.20 }
-  claude-haiku-4-5: { input: 1.20,  output: 6.00,  cache_write: 1.50,  cache_read: 0.12 }
+  claude-sonnet-5:  { input: 2.40,  output: 12.00, cache_write: 3.00,  cache_read: 0.24 }
+  claude-fable-5:   { input: 12.00, output: 60.00, cache_write: 15.00, cache_read: 1.20 }  # not offered in GovCloud (US-West) at review; global x1.2
+  claude-haiku-4-5: { input: 1.20,  output: 6.00,  cache_write: 1.50,  cache_read: 0.12 }  # not listed for GovCloud (US-West) at review; global x1.2
   default:          { input: 6.00,  output: 30.00, cache_write: 7.50,  cache_read: 0.60 }
 
 # Identity Center groups (must exist unless identity.manage_identity_store = true)

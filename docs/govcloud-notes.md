@@ -16,6 +16,14 @@ There is no `global.` endpoint in GovCloud. Opus 5 in GovCloud runs with zero da
 default. `make preflight` prints the model IDs your account actually exposes; if they differ from
 `model_tiers`, fix the yaml rather than the module.
 
+## Pricing
+
+GovCloud (US-West) Anthropic prices on the AWS pricing page (2026-09-16) are exactly 1.2x global:
+Opus 5 $6 / $30, Sonnet 5 $2.40 / $12, Opus 4.8 $6 / $30, Fable 5.1 $12 / $60 per 1M input /
+output tokens; cache reads 0.1x input (0.025x for Fable 5.1), 5-minute cache writes 1.25x.
+Haiku 4.5, Fable 5 and Sonnet 4.6 were not priced for GovCloud at review time, which suggests
+they are not offered there; `make preflight` shows what your account actually exposes.
+
 ## Enablement
 
 Accept the Anthropic EULA in a commercial region of the same organization first, then enable

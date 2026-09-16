@@ -58,3 +58,18 @@ in the Makefile if you are on the newer CLI, or pin 0.55–0.69.
 
 `make destroy ENV=dev` removes everything except the bootstrap bucket (which has
 `prevent_destroy`). Invocation logs in S3 are deleted with the bucket only if you empty it first.
+
+## Running from a private fork
+
+Most teams clone this repository into a private git host to collaborate with their platform
+or DevOps group and keep the public version as the upstream. Suggested shape:
+
+- Keep the public repo as `upstream` and pull improvements with `git fetch upstream && git merge
+  upstream/main`. Put local changes in modules behind variables where possible so merges stay
+  clean, and send generic fixes back upstream.
+- Un-ignore your environment directory in the private fork (`terragrunt/live/<env>/` is
+  gitignored here so account ids never reach the public repo). In a private repo it is fine
+  and useful to version `account.hcl` and `engineers.yaml`.
+- Keep `prices:` and `docs/cost.md` localized to your rate card in the fork; keep them at list
+  price upstream.
+- Run the same CI workflow; it needs no secrets and no AWS access.
