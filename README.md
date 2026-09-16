@@ -33,7 +33,9 @@ Bedrock Knowledge Base ◀── S3 docs          CloudWatch Logs ──▶ Budg
 
 ## Quick start
 
-1. Read `docs/deploy.md`. The short version:
+1. Read `docs/deploy.md`. The short version: copy the example environment to a directory
+   named after your environment (that name is the `ENV` for every `make` target), edit its two
+   config files, then run the targets in order.
    ```bash
    cp -r terragrunt/live/example terragrunt/live/dev
    $EDITOR terragrunt/live/dev/account.hcl      # account id, partition, region

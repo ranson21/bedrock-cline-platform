@@ -9,6 +9,8 @@ module name.
 
 ## 0. Before apply
 
+- [ ] You created your environment directory: `cp -r terragrunt/live/example terragrunt/live/dev`,
+      and edited `account.hcl` and `engineers.yaml` in the copy (`docs/deploy.md`, step 1).
 - [ ] `make preflight ENV=dev` passes completely: partition, region, model tiers resolved,
       Identity Center instance and both groups found, OpenSearch Serverless reachable.
 - [ ] You are running as an admin permission set or a deploy role, not root. `aws sts

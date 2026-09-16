@@ -1,9 +1,19 @@
 # live/
 
-One directory per target account or environment. Copy `example/` and edit:
+One directory per deployment target (account, or environment within an account). The
+directory name is the `ENV` you pass to `make`. Only `example/` is committed.
 
-- `account.hcl` — account id, partition, region, name prefix, optional deploy role.
-- `engineers.yaml` — engineers, teams, model tiers, budgets, and the price table.
+```bash
+cp -r terragrunt/live/example terragrunt/live/dev
+$EDITOR terragrunt/live/dev/account.hcl      # account id, partition, region, name prefix
+$EDITOR terragrunt/live/dev/engineers.yaml   # engineers, tiers, budgets, prices, group names
+make preflight ENV=dev
+```
 
-Directories other than `example/` are gitignored so real account IDs never land in git.
-If you want to version your environment config, do it in a private repo that vendors this one.
+Each unit subdirectory (`identity/`, `bedrock-core/`, ...) holds a `terragrunt.hcl` that points
+at a module and passes inputs from `account.hcl` and `engineers.yaml`. You normally edit only
+the two config files; edit a unit's `terragrunt.hcl` to change module variables such as
+`enable_guardrail` or `standby_replicas`.
+
+Directories other than `example/` are gitignored so real account ids never land in git. In a
+private fork, remove that ignore rule and version your environment directories.

@@ -14,13 +14,31 @@
 - OpenSearch Serverless and Bedrock Knowledge Bases available in the target region
   (both are in us-gov-west-1 and us-gov-east-1).
 
-## Steps
+## Step 1: create your environment directory
+
+Every deployment target (an account, or an environment inside an account) is a directory under
+`terragrunt/live/`. The repository ships only `terragrunt/live/example/`; you copy it, and the
+copy's name becomes the `ENV` you pass to every `make` target.
 
 ```bash
-cp -r terragrunt/live/example terragrunt/live/dev
-$EDITOR terragrunt/live/dev/account.hcl        # account_id, partition, region, name_prefix
-$EDITOR terragrunt/live/dev/engineers.yaml     # engineers, tiers, budgets, prices
+cp -r terragrunt/live/example terragrunt/live/dev     # "dev" is the ENV name; pick anything
+```
 
+Then edit the two files in the copy:
+
+- `terragrunt/live/dev/account.hcl` — `account_id`, `partition` (`aws` or `aws-us-gov`),
+  `region`, `environment`, `name_prefix`, and optionally `deploy_role_arn`.
+- `terragrunt/live/dev/engineers.yaml` — engineers, teams, model tiers, budgets, prices, and
+  the Identity Center group names.
+
+Everything under `terragrunt/live/` except `example/` is gitignored, so your account id never
+lands in this repository. If you run from a private fork, un-ignore your directory there (see
+"Running from a private fork" below). One directory per target: `live/dev`, `live/prod`,
+`live/agency-sandbox`, each with its own state bucket.
+
+## Step 2: deploy
+
+```bash
 make preflight ENV=dev      # fails fast on wrong account, missing models, missing groups
 make bootstrap ENV=dev      # state bucket + lock table; local state kept in live/dev/.bootstrap
 make plan ENV=dev
@@ -29,6 +47,8 @@ make smoke ENV=dev          # invokes profiles, proves caching, tests KB retriev
 make profiles ENV=dev       # ARNs to hand to each engineer
 make sync-docs ENV=dev ARGS="--src ./docs --prefix platform/"   # seed the knowledge base
 ```
+
+`ENV` defaults to `dev` if you omit it.
 
 Confirm the SNS email subscriptions that arrive after apply, or alerts will not be delivered.
 
