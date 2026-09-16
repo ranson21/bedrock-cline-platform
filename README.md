@@ -165,7 +165,7 @@ See `docs/cost.md` for the full tuning guide.
 - `docs/mcp-integration.md` (local and remote MCP servers: credentials, hosting in-boundary, governance)
 - `docs/cost.md` (budget tuning), `docs/budget-guard.md` (how enforcement works)
 - `docs/govcloud-notes.md`, `docs/security-and-compliance.md`
-- `docs/runbooks/` for day-two operations
+- `docs/runbooks/` for day-two operations, including `enable-identity-center.md` for the one prerequisite Terraform cannot create
 
 ## License
 

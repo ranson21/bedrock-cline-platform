@@ -5,9 +5,9 @@
 - Terraform ≥ 1.9, Terragrunt ≥ 0.55, AWS CLI v2, Python 3.10+ with `pip install -r tools/requirements.txt`.
 - An AWS account (commercial or GovCloud) where you hold admin credentials for the deploy, ideally
   through an Identity Center admin permission set or a deploy role you set in `account.hcl`.
-- **IAM Identity Center enabled** in the account (or delegated from the org management account).
-  Create two groups in your IdP or Identity Center: `bedrock-engineers` and `bedrock-admins`
-  (names configurable in `engineers.yaml`).
+- **IAM Identity Center enabled** in the account (or delegated from the org management account)
+  with two groups, `bedrock-engineers` and `bedrock-admins` (names configurable in
+  `engineers.yaml`). Not enabled yet? `docs/runbooks/enable-identity-center.md`.
 - **Bedrock model access enabled** for the Anthropic models you list in `model_tiers`. In
   GovCloud, accept the Anthropic EULA once in a commercial region (us-east-1 or us-west-2) of the
   same organization, then enable the models in the GovCloud account. Terraform cannot do this.
