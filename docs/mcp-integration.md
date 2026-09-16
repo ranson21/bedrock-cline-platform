@@ -1,8 +1,8 @@
 # Integrating MCP servers with Cline
 
 Cline speaks the Model Context Protocol, so any MCP server becomes a tool the agent can call:
-the knowledge base this platform ships, the read-only Jira and Postgres servers, or a remote
-server hosted in the account. This guide covers both transports, how to keep credentials out of
+the knowledge base this platform ships, read-only servers for your issue tracker or databases,
+or a remote server hosted in the account. This guide covers both transports, how to keep credentials out of
 the agent, how to host remote servers inside the boundary, and the governance rules that keep
 tool output from eating the token budget.
 
@@ -34,24 +34,23 @@ Cline reads `cline_mcp_settings.json` (Cline > MCP Servers > Configure). Two sha
 `tools/mcp-kb-server`. Uses the engineer's SSO profile; access is the `bedrock:Retrieve`
 statement in the engineer permission set. No secret. See `docs/cline-setup.md`.
 
-### jira-readonly-mcp and postgres-readonly-mcp
+### Read-only servers for your issue tracker and databases
 
-Both are Node servers from github.com/ranson21 built on the same principle this platform uses:
-the server owns the credential, the model never sees it, and the server is architecturally
-incapable of writes (Jira: GET-only client; Postgres: `default_transaction_read_only=on`
-sessions plus single-statement extended protocol plus a fail-closed validator).
+The most useful local servers give the agent read access to the systems engineers already
+consult: the issue tracker, a database, a CI system, an internal wiki. Choose or build them on
+one principle, the same one this platform uses for the knowledge base: **the server owns the
+credential, the model never sees it, and the server is architecturally incapable of writes.**
+For an issue tracker that means an HTTP client that only implements GET. For a database it
+means opening every session read-only at the protocol level (Postgres:
+`default_transaction_read_only=on`), sending one statement per request, and connecting as a
+role with `SELECT` grants only. A validator that rejects write keywords is a useful extra layer
+but never the boundary.
 
-Install once per machine:
-
-```bash
-git clone https://github.com/ranson21/jira-readonly-mcp && cd jira-readonly-mcp && npm install && npm run build
-git clone https://github.com/ranson21/postgres-readonly-mcp && cd postgres-readonly-mcp && npm install && npm run build
-```
-
-They are configured by environment variables (`JIRA_BASE_URL`, `JIRA_USERNAME`, `JIRA_TOKEN`;
-`PGHOST`/`PGPORT`/`PGDATABASE`/`PGUSER`/`PGPASSWORD` or `DATABASE_URL`, with
-`DB_ENVIRONMENTS` for several databases). Their READMEs show a `.env` file. **Do not use a
-`.env` file or put tokens in `cline_mcp_settings.json` here.** Use the wrapper below instead.
+Such servers are typically a single Node or Python process configured entirely by environment
+variables, for example `ISSUE_TRACKER_URL` and `ISSUE_TRACKER_TOKEN`, or the standard libpq
+variables `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, `PGSSLMODE`. Their READMEs
+usually suggest a `.env` file. **Do not use a `.env` file or put tokens in
+`cline_mcp_settings.json` here.** Use the wrapper below instead.
 
 ### Credentials: Secrets Manager, resolved at launch
 
@@ -62,30 +61,30 @@ settings file holds only a secret id.
 Platform admin, once per server:
 
 ```bash
-aws secretsmanager create-secret --name bcp/mcp/jira \
-  --secret-string '{"JIRA_BASE_URL":"https://jira.agency.internal","JIRA_USERNAME":"svc-readonly@agency.gov","JIRA_TOKEN":"<read-only token>"}'
-aws secretsmanager create-secret --name bcp/mcp/postgres-dev \
-  --secret-string '{"PGHOST":"dev-db.internal","PGPORT":"5432","PGDATABASE":"appdb","PGUSER":"readonly_user","PGPASSWORD":"<pw>","PGSSLMODE":"require"}'
+aws secretsmanager create-secret --name <prefix>/mcp/issue-tracker \
+  --secret-string '{"ISSUE_TRACKER_URL":"https://issues.example.internal","ISSUE_TRACKER_TOKEN":"<read-only token>"}'
+aws secretsmanager create-secret --name <prefix>/mcp/database-dev \
+  --secret-string '{"PGHOST":"dev-db.example.internal","PGPORT":"5432","PGDATABASE":"appdb","PGUSER":"readonly_user","PGPASSWORD":"<pw>","PGSSLMODE":"require"}'
 ```
 
 The engineer permission set grants `secretsmanager:GetSecretValue` on `<prefix>/mcp/*`
 (shared, read-only service credentials) and on `<prefix>/mcp/users/<their userName>/*`
-(personal credentials, for example a Jira token tied to their own account). The Postgres role
-must have `SELECT` grants only; the Jira account should be a read-only service account.
+(personal credentials, for example an issue-tracker token tied to their own account). Database
+roles must have `SELECT` grants only; tracker accounts should be read-only service accounts.
 
 Engineer, in `cline_mcp_settings.json`:
 
 ```jsonc
-"jira": {
+"issue-tracker": {
   "command": "/path/to/bedrock-cline-platform/cline/mcp/run-with-secrets.sh",
-  "args": ["bcp/mcp/jira", "node", "/path/to/jira-readonly-mcp/dist/index.js"],
-  "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "us-gov-west-1" }
+  "args": ["<prefix>/mcp/issue-tracker", "node", "/path/to/issue-tracker-mcp/dist/index.js"],
+  "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "<region>" }
 }
 ```
 
 Reachability: a database in a private subnet is only reachable from a laptop over the Client
-VPN from the `network` module, or a bastion. Jira Cloud is reachable from anywhere; Jira Data
-Center inside the network needs the same VPN.
+VPN from the `network` module, or a bastion. A SaaS tracker is reachable from anywhere; a
+self-hosted one inside the network needs the same VPN.
 
 ## Remote servers
 
@@ -132,16 +131,15 @@ unauthenticated request cannot even reach the server.
   because a `SELECT *` on a large table is both a data exposure and a token bill.
 - **Tool output is untrusted input.** Ticket text and database rows can contain prompt
   injection. `cline/.clinerules` tells the agent to treat MCP results as data, never as
-  instructions. The Jira and Postgres servers also redact common credential shapes in output.
+  instructions. Prefer servers that also redact credential-shaped strings in their output.
 - **Token cost.** Every tool result is re-sent as input on every following turn of the task
-  (cached, but not free). Keep search limits small (`JIRA_DEFAULT_SEARCH_LIMIT=15`), ask for
-  specific columns, and start a new task after a large investigation. `make usage` shows who is
+  (cached, but not free). Keep search limits small, ask for specific columns, and start a new
+  task after a large investigation. `make usage` shows who is
   paying for large contexts.
 - **Secrets.** Never in `cline_mcp_settings.json`, `.env` files, or repos. Secrets Manager under
   `<prefix>/mcp/`, rotated like any other service credential, read-only principals only.
-- **Logging.** Local servers log to stderr, which Cline shows in its MCP panel; set
-  `JIRA_MCP_LOG_LEVEL` / `DB_MCP_LOG_LEVEL` to `info`. Remote servers log to CloudWatch with the
-  caller identity.
+- **Logging.** Local servers log to stderr, which Cline shows in its MCP panel. Remote servers
+  log to CloudWatch with the caller identity.
 
 ## Adding a new server, checklist
 

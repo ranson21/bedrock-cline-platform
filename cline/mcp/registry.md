@@ -6,5 +6,5 @@ row before rolling a server out; `docs/mcp-integration.md` explains the columns.
 | Name | Transport | Source | Reaches | Write-capable | Secret id | Auto-approve |
 |---|---|---|---|---|---|---|
 | team-knowledge-base | local stdio | `tools/mcp-kb-server` (this repo) | Bedrock Knowledge Base | no | none (SSO) | all tools |
-| jira | local stdio | github.com/ranson21/jira-readonly-mcp | Jira REST, GET only | no | `<prefix>/mcp/jira` | all tools |
-| postgres | local stdio | github.com/ranson21/postgres-readonly-mcp | Postgres, read-only session | no | `<prefix>/mcp/postgres-<env>` | `list_tables`, `describe_table` only |
+| issue-tracker | local stdio | `<repo or package>` | issue tracker REST, GET only | no | `<prefix>/mcp/issue-tracker` | read tools with bounded output |
+| database-dev | local stdio | `<repo or package>` | dev database, read-only session | no | `<prefix>/mcp/database-dev` | schema tools only, never raw query |

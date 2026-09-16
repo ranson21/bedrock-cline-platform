@@ -5,10 +5,10 @@
 # Usage in cline_mcp_settings.json:
 #   "command": "/path/to/run-with-secrets.sh",
 #   "args": ["<secret-id>", "node", "/path/to/server/dist/index.js"],
-#   "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "us-gov-west-1" }
+#   "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "<region>" }
 #
 # The secret must be a JSON object of environment variables, e.g.
-#   {"JIRA_BASE_URL":"https://jira.example.internal","JIRA_TOKEN":"..."}
+#   {"ISSUE_TRACKER_URL":"https://issues.example.internal","ISSUE_TRACKER_TOKEN":"..."}
 set -euo pipefail
 SECRET_ID="${1:?secret id}"; shift
 JSON="$(aws secretsmanager get-secret-value --secret-id "$SECRET_ID" --query SecretString --output text)"
