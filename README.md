@@ -159,7 +159,7 @@ See `docs/cost.md` for the full tuning guide.
 
 ## Documentation
 
-- `docs/architecture.md`, `docs/deploy.md`, `docs/cline-setup.md`, `docs/onboarding.md`
+- `docs/architecture.md`, `docs/deploy.md`, `docs/first-apply-shakedown.md`, `docs/cline-setup.md`, `docs/onboarding.md`
 - `docs/knowledge-base-seeding.md` (fill the empty index using the agent) with the task prompt in `cline/prompts/kb-seed.md`
 - `docs/knowledge-base-ui.md` (prompt to build a role-gated KB search/Q&A feature into your existing app)
 - `docs/mcp-integration.md` (local and remote MCP servers: credentials, hosting in-boundary, governance)

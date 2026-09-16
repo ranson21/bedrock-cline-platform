@@ -32,6 +32,10 @@ make sync-docs ENV=dev ARGS="--src ./docs --prefix platform/"   # seed the knowl
 
 Confirm the SNS email subscriptions that arrive after apply, or alerts will not be delivered.
 
+**First deployment in a new account?** Work through `docs/first-apply-shakedown.md` before
+onboarding anyone. It lists the likely first-run friction per module and the security and
+metering proofs to run.
+
 The knowledge base index is empty after apply. Seed it with the agent: `docs/knowledge-base-seeding.md`.
 
 ## Applying to another account
