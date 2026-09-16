@@ -11,6 +11,26 @@
       },
       "disabled": false,
       "autoApprove": ["search_knowledge_base", "knowledge_base_info"]
+    },
+    "jira": {
+      "command": "/absolute/path/to/bedrock-cline-platform/cline/mcp/run-with-secrets.sh",
+      "args": ["bcp/mcp/jira", "node", "/absolute/path/to/jira-readonly-mcp/dist/index.js"],
+      "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "us-gov-west-1", "JIRA_DEFAULT_SEARCH_LIMIT": "15" },
+      "disabled": false,
+      "autoApprove": ["get_issue", "search_issues", "get_epic_children", "get_issue_comments", "get_project", "list_projects"]
+    },
+    "postgres": {
+      "command": "/absolute/path/to/bedrock-cline-platform/cline/mcp/run-with-secrets.sh",
+      "args": ["bcp/mcp/postgres-dev", "node", "/absolute/path/to/postgres-readonly-mcp/dist/index.js"],
+      "env": { "AWS_PROFILE": "bedrock", "AWS_REGION": "us-gov-west-1" },
+      "disabled": false,
+      "autoApprove": ["list_tables", "describe_table"]
+    },
+    "remote-example": {
+      "url": "https://mcp.internal.example/mcp",
+      "type": "streamableHttp",
+      "disabled": true,
+      "autoApprove": []
     }
   }
 }

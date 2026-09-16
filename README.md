@@ -162,6 +162,7 @@ See `docs/cost.md` for the full tuning guide.
 - `docs/architecture.md`, `docs/deploy.md`, `docs/cline-setup.md`, `docs/onboarding.md`
 - `docs/knowledge-base-seeding.md` (fill the empty index using the agent) with the task prompt in `cline/prompts/kb-seed.md`
 - `docs/knowledge-base-ui.md` (prompt to build a role-gated KB search/Q&A feature into your existing app)
+- `docs/mcp-integration.md` (local and remote MCP servers: Jira, Postgres, secrets, hosting, governance)
 - `docs/cost.md` (budget tuning), `docs/budget-guard.md` (how enforcement works)
 - `docs/govcloud-notes.md`, `docs/security-and-compliance.md`
 - `docs/runbooks/` for day-two operations

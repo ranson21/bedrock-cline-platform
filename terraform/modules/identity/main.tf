@@ -174,6 +174,32 @@ data "aws_iam_policy_document" "engineer" {
     }
   }
 
+  # Credentials for approved local MCP servers (docs/mcp-integration.md). Shared service
+  # credentials under <prefix>/, personal ones under <prefix>/users/<userName>/.
+  dynamic "statement" {
+    for_each = var.mcp_secret_prefix != "" ? [1] : []
+    content {
+      sid     = "ReadMcpSecrets"
+      actions = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+      resources = [
+        "arn:${local.partition}:secretsmanager:*:${local.account_id}:secret:${var.mcp_secret_prefix}/*",
+      ]
+      condition {
+        test     = "StringNotLike"
+        variable = "secretsmanager:SecretId"
+        values   = ["arn:${local.partition}:secretsmanager:*:${local.account_id}:secret:${var.mcp_secret_prefix}/users/*"]
+      }
+    }
+  }
+  dynamic "statement" {
+    for_each = var.mcp_secret_prefix != "" ? [1] : []
+    content {
+      sid       = "ReadOwnMcpSecrets"
+      actions   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+      resources = ["arn:${local.partition}:secretsmanager:*:${local.account_id}:secret:${var.mcp_secret_prefix}/users/$${aws:PrincipalTag/owner}/*"]
+    }
+  }
+
   statement {
     sid       = "WhoAmI"
     actions   = ["sts:GetCallerIdentity"]

@@ -89,3 +89,9 @@ variable "docs_bucket_arn" {
   type        = string
   default     = ""
 }
+
+variable "mcp_secret_prefix" {
+  description = "Secrets Manager name prefix engineers may read for MCP server credentials (shared under <prefix>/, personal under <prefix>/users/<userName>/). Empty disables."
+  type        = string
+  default     = ""
+}

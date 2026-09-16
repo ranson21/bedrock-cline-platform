@@ -42,6 +42,7 @@ inputs = {
   manage_identity_store  = false # true only if Identity Center is its own identity source (no external IdP)
   manage_abac_attributes = true  # false if your org already manages ABAC attributes on the instance
   session_duration       = "PT8H"
+  mcp_secret_prefix      = "${include.root.locals.name_prefix}/mcp" # engineers may read <prefix>/mcp/* for approved MCP servers
 
   invocation_log_group_arn    = dependency.bedrock_core.outputs.invocation_log_group_arn
   logs_bucket_arn             = dependency.bedrock_core.outputs.logs_bucket_arn
