@@ -23,11 +23,6 @@ variable "invocation_log_group_name" {
   type = string
 }
 
-variable "profile_index" {
-  type    = map(any)
-  default = {}
-}
-
 variable "enable_analytics_collection" {
   description = "Create an OpenSearch Serverless SEARCH collection that the budget guard indexes usage into."
   type        = bool

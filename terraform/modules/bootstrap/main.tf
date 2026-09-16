@@ -2,8 +2,6 @@
 # Run once with local state via `make bootstrap`; the root Terragrunt config
 # expects exactly these names.
 
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
 
 locals {
   bucket_name = "${var.name_prefix}-tfstate-${var.account_id}-${var.region}"

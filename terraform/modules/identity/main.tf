@@ -11,7 +11,6 @@ data "aws_ssoadmin_instances" "this" {}
 
 locals {
   partition    = data.aws_partition.current.partition
-  region       = data.aws_region.current.region
   account_id   = data.aws_caller_identity.current.account_id
   instance_arn = tolist(data.aws_ssoadmin_instances.this.arns)[0]
   store_id     = tolist(data.aws_ssoadmin_instances.this.identity_store_ids)[0]

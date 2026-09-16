@@ -11,7 +11,6 @@ dependency "bedrock_core" {
   config_path = "../bedrock-core"
   mock_outputs = {
     invocation_log_group_name = "mock"
-    profile_index             = {}
   }
   mock_outputs_allowed_terraform_commands = ["validate", "plan", "init"]
 }

@@ -2,7 +2,7 @@
 # services, plus an optional Client VPN. Use when policy requires that engineer traffic
 # to Bedrock never traverse the public AWS endpoint path, or when deploying the gateway.
 
-data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 data "aws_availability_zones" "available" {
   state = "available"

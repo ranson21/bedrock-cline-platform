@@ -29,7 +29,7 @@ jobs:
       - name: tflint
         run: |
           tflint --init --config "$PWD/.tflint.hcl"
-          for m in terraform/modules/*; do (cd "$m" && tflint --config "$GITHUB_WORKSPACE/.tflint.hcl"); done
+          for m in terraform/modules/*; do echo "== $m"; (cd "$m" && tflint --config "$GITHUB_WORKSPACE/.tflint.hcl") || exit 1; done
       - name: checkov
         uses: bridgecrewio/checkov-action@v12
         with:
